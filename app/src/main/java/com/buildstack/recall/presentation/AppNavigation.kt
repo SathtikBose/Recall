@@ -38,7 +38,11 @@ fun AppNavigation() {
             )
         }
         composable(route = Screen.AddEdit.route) {
-            // AddEditReminderScreen()
+            com.buildstack.recall.presentation.add.AddEditReminderScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

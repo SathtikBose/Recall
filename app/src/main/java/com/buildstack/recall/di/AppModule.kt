@@ -48,4 +48,10 @@ object AppModule {
             markReminderCompleted = MarkReminderCompleted(repository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideAlarmScheduler(app: Application): com.buildstack.recall.domain.scheduler.AlarmScheduler {
+        return com.buildstack.recall.data.scheduler.AlarmSchedulerImpl(app)
+    }
 }
