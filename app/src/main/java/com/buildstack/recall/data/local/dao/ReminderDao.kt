@@ -38,4 +38,10 @@ interface ReminderDao {
 
     @Query("UPDATE reminders SET isCompleted = 0, updatedAt = :timestamp WHERE id = :id")
     suspend fun restoreReminder(id: Int, timestamp: Long)
+
+    @Query("SELECT DISTINCT category FROM reminders WHERE category IS NOT NULL AND category != ''")
+    fun getAllCategories(): Flow<List<String>>
+
+    @Query("SELECT * FROM reminders WHERE reminderDate = :date AND isCompleted = 0 ORDER BY reminderTime ASC")
+    suspend fun getRemindersByDate(date: String): List<ReminderEntity>
 }

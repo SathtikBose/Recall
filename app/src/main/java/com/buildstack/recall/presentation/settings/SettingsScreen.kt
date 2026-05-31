@@ -21,6 +21,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -79,6 +83,68 @@ fun SettingsScreen(
                                 checkedThumbColor = White,
                                 checkedTrackColor = ButtonGlow
                             )
+                        )
+                    }
+
+                    androidx.compose.material3.Divider(color = White.copy(alpha = 0.2f))
+
+                    val isDailySummaryEnabled by viewModel.isDailySummaryEnabled.collectAsStateWithLifecycle()
+                    val dailySummaryTime by viewModel.dailySummaryTime.collectAsStateWithLifecycle()
+                    var showTimePicker by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "Daily Summary", color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text(text = "Get a morning notification of today's reminders", color = White.copy(alpha = 0.7f), fontSize = 14.sp)
+                        }
+                        Switch(
+                            checked = isDailySummaryEnabled,
+                            onCheckedChange = viewModel::toggleDailySummary,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = White,
+                                checkedTrackColor = ButtonGlow
+                            )
+                        )
+                    }
+
+                    if (isDailySummaryEnabled) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable { showTimePicker = true },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Summary Time", color = White, fontSize = 16.sp)
+                            Text(text = dailySummaryTime, color = ButtonGlow, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+                    }
+
+                    if (showTimePicker) {
+                        val timeState = androidx.compose.material3.rememberTimePickerState(
+                            initialHour = dailySummaryTime.split(":")[0].toIntOrNull() ?: 8,
+                            initialMinute = dailySummaryTime.split(":")[1].toIntOrNull() ?: 0,
+                            is24Hour = is24HourFormat
+                        )
+                        androidx.compose.material3.AlertDialog(
+                            onDismissRequest = { showTimePicker = false },
+                            confirmButton = {
+                                androidx.compose.material3.TextButton(onClick = {
+                                    val h = timeState.hour
+                                    val m = timeState.minute
+                                    viewModel.updateDailySummaryTime(String.format("%02d:%02d", h, m))
+                                    showTimePicker = false
+                                }) { Text("OK", color = ButtonGlow) }
+                            },
+                            dismissButton = {
+                                androidx.compose.material3.TextButton(onClick = { showTimePicker = false }) { Text("Cancel", color = White) }
+                            },
+                            text = {
+                                androidx.compose.material3.TimePicker(state = timeState)
+                            },
+                            containerColor = Color(0xFF1E1E1E)
                         )
                     }
                 }

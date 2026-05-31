@@ -40,11 +40,18 @@ class MarkReminderCompleted(private val repository: ReminderRepository) {
     }
 }
 
+class GetCategories(private val repository: ReminderRepository) {
+    operator fun invoke(): Flow<List<String>> {
+        return repository.getAllCategories()
+    }
+}
+
 data class ReminderUseCases(
     val getReminders: GetReminders,
     val getReminderById: GetReminderById,
     val addReminder: AddReminder,
     val updateReminder: UpdateReminder,
     val deleteReminder: DeleteReminder,
-    val markReminderCompleted: MarkReminderCompleted
+    val markReminderCompleted: MarkReminderCompleted,
+    val getCategories: GetCategories
 )

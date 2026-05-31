@@ -11,6 +11,8 @@ interface ReminderRepository {
     suspend fun getReminderById(id: Int): Reminder?
     fun getCompletedReminders(): Flow<List<Reminder>>
     fun searchReminders(query: String): Flow<List<Reminder>>
+    fun getAllCategories(): Flow<List<String>>
+    suspend fun getRemindersByDate(date: String): List<Reminder>
     suspend fun markCompleted(id: Int)
     suspend fun restoreReminder(id: Int)
 }

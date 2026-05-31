@@ -46,6 +46,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val reminders = viewModel.reminders.collectAsStateWithLifecycle().value
+    val categories = viewModel.categories.collectAsStateWithLifecycle().value
+    val selectedCategory = viewModel.selectedCategory.collectAsStateWithLifecycle().value
 
     Scaffold(
         topBar = {
@@ -73,49 +75,81 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (reminders.isEmpty()) {
-                // Empty State
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            if (categories.isNotEmpty()) {
+                androidx.compose.foundation.lazy.LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Empty State",
-                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                        modifier = Modifier.size(80.dp)
-                    )
-                    Text(
-                        text = "No Reminders Yet",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                    Text(
-                        text = "Create your first reminder and stay organized.",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
+                    item {
+                        androidx.compose.material3.FilterChip(
+                            selected = selectedCategory == null,
+                            onClick = { viewModel.selectCategory(null) },
+                            label = { Text("All") },
+                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = ButtonGlow,
+                                selectedLabelColor = White
+                            )
+                        )
+                    }
+                    items(categories, key = { it }) { category ->
+                        androidx.compose.material3.FilterChip(
+                            selected = selectedCategory == category,
+                            onClick = { viewModel.selectCategory(category) },
+                            label = { Text(category) },
+                            colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = ButtonGlow,
+                                selectedLabelColor = White
+                            )
+                        )
+                    }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(reminders, key = { it.id }) { reminder ->
-                        GlassCard(
-                            modifier = Modifier.clickable { onEditReminder(reminder.id) }
-                        ) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                                Text(text = reminder.title, color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                if (reminder.description.isNotBlank()) {
-                                    Text(text = reminder.description, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), fontSize = 14.sp)
+            }
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (reminders.isEmpty()) {
+                    // Empty State
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Empty State",
+                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                            modifier = Modifier.size(80.dp)
+                        )
+                        Text(
+                            text = if (selectedCategory != null) "No reminders for $selectedCategory" else "No Reminders Yet",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+                        Text(
+                            text = "Create your first reminder and stay organized.",
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(reminders, key = { it.id }) { reminder ->
+                            GlassCard(
+                                modifier = Modifier.clickable { onEditReminder(reminder.id) }
+                            ) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                                    Text(text = reminder.title, color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                    if (reminder.description.isNotBlank()) {
+                                        Text(text = reminder.description, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), fontSize = 14.sp)
+                                    }
+                                    Text(text = "${reminder.reminderDate} ${reminder.reminderTime}", color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                                 }
-                                Text(text = "${reminder.reminderDate} ${reminder.reminderTime}", color = White, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
                             }
                         }
                     }

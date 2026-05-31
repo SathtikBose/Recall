@@ -36,7 +36,15 @@ class ReminderRepositoryImpl(
     }
 
     override fun searchReminders(query: String): Flow<List<Reminder>> {
-        return dao.searchReminders(query).map { list -> list.map { it.toDomain() } }
+        return dao.searchReminders(query).map { entities -> entities.map { it.toDomain() } }
+    }
+
+    override fun getAllCategories(): Flow<List<String>> {
+        return dao.getAllCategories()
+    }
+
+    override suspend fun getRemindersByDate(date: String): List<Reminder> {
+        return dao.getRemindersByDate(date).map { it.toDomain() }
     }
 
     override suspend fun markCompleted(id: Int) {

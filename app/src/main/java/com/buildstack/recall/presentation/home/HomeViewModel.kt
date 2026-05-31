@@ -16,12 +16,30 @@ class HomeViewModel @Inject constructor(
     private val useCases: ReminderUseCases
 ) : ViewModel() {
 
-    val reminders: StateFlow<List<Reminder>> = useCases.getReminders()
+    val categories: StateFlow<List<String>> = useCases.getCategories()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    private val _selectedCategory = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    val selectedCategory: StateFlow<String?> = _selectedCategory
+
+    val reminders: StateFlow<List<Reminder>> = kotlinx.coroutines.flow.combine(
+        useCases.getReminders(),
+        _selectedCategory
+    ) { allReminders, category ->
+        if (category == null) allReminders else allReminders.filter { it.category == category }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    fun selectCategory(category: String?) {
+        _selectedCategory.value = category
+    }
 
     fun markCompleted(id: Int) {
         viewModelScope.launch {

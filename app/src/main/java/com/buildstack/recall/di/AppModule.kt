@@ -46,7 +46,8 @@ object AppModule {
             addReminder = AddReminder(repository),
             updateReminder = UpdateReminder(repository),
             deleteReminder = DeleteReminder(repository),
-            markReminderCompleted = MarkReminderCompleted(repository)
+            markReminderCompleted = MarkReminderCompleted(repository),
+            getCategories = com.buildstack.recall.domain.usecase.GetCategories(repository)
         )
     }
 

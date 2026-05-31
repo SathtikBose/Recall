@@ -22,10 +22,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -98,6 +102,10 @@ fun AddEditReminderScreen(
                     )
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        // We keep the OutlinedTextField but make them readOnly and clickable
+                        var showTimePicker by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+                        val is24HourFormat by viewModel.is24HourFormat.collectAsStateWithLifecycle()
+
                         OutlinedTextField(
                             value = state.reminderDate,
                             onValueChange = viewModel::updateDate,
@@ -109,14 +117,58 @@ fun AddEditReminderScreen(
                         )
                         OutlinedTextField(
                             value = state.reminderTime,
-                            onValueChange = viewModel::updateTime,
+                            onValueChange = {},
+                            readOnly = true,
                             label = { Text("Time (HH:MM)") },
                             modifier = Modifier.weight(1f),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = White, unfocusedTextColor = White
-                            )
+                                focusedTextColor = White, unfocusedTextColor = White,
+                                disabledTextColor = White
+                            ),
+                            trailingIcon = {
+                                IconButton(onClick = { showTimePicker = true }) {
+                                    Text("🕒", color = White)
+                                }
+                            }
                         )
+
+                        if (showTimePicker) {
+                            val timeState = androidx.compose.material3.rememberTimePickerState(
+                                is24Hour = is24HourFormat
+                            )
+                            androidx.compose.material3.AlertDialog(
+                                onDismissRequest = { showTimePicker = false },
+                                confirmButton = {
+                                    androidx.compose.material3.TextButton(onClick = {
+                                        val h = timeState.hour
+                                        val m = timeState.minute
+                                        viewModel.updateTime(String.format("%02d:%02d", h, m))
+                                        showTimePicker = false
+                                    }) { Text("OK", color = ButtonGlow) }
+                                },
+                                dismissButton = {
+                                    androidx.compose.material3.TextButton(onClick = { showTimePicker = false }) { Text("Cancel", color = White) }
+                                },
+                                text = {
+                                    androidx.compose.material3.TimePicker(state = timeState)
+                                },
+                                containerColor = Color(0xFF1E1E1E)
+                            )
+                        }
                     }
+
+                    // Category Selection
+                    OutlinedTextField(
+                        value = state.category,
+                        onValueChange = { viewModel.updateCategory(it) },
+                        label = { Text("Category (e.g. Work, Personal)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = White, unfocusedTextColor = White,
+                            focusedBorderColor = ButtonGlow, unfocusedBorderColor = White.copy(alpha = 0.3f),
+                            focusedLabelColor = ButtonGlow, unfocusedLabelColor = White.copy(alpha = 0.5f)
+                        )
+                    )
 
                     // Priority Selection
                     Text("Priority", color = White, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
