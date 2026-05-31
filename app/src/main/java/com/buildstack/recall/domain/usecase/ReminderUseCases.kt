@@ -10,6 +10,12 @@ class GetReminders(private val repository: ReminderRepository) {
     }
 }
 
+class GetReminderById(private val repository: ReminderRepository) {
+    suspend operator fun invoke(id: Int): Reminder? {
+        return repository.getReminderById(id)
+    }
+}
+
 class AddReminder(private val repository: ReminderRepository) {
     suspend operator fun invoke(reminder: Reminder) {
         repository.insertReminder(reminder)
@@ -36,6 +42,7 @@ class MarkReminderCompleted(private val repository: ReminderRepository) {
 
 data class ReminderUseCases(
     val getReminders: GetReminders,
+    val getReminderById: GetReminderById,
     val addReminder: AddReminder,
     val updateReminder: UpdateReminder,
     val deleteReminder: DeleteReminder,

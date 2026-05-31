@@ -24,6 +24,12 @@
         </activity>
 
         <receiver android:name=".presentation.receiver.NotificationReceiver" android:exported="false" />
+        <receiver android:name=".presentation.receiver.BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

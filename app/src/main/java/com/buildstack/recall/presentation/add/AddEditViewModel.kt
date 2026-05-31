@@ -38,6 +38,29 @@ class AddEditViewModel @Inject constructor(
     private val _state = MutableStateFlow(AddEditState())
     val state: StateFlow<AddEditState> = _state.asStateFlow()
 
+    init {
+        savedStateHandle.get<Int>("id")?.let { id ->
+            if (id != -1) {
+                viewModelScope.launch {
+                    useCases.getReminderById(id)?.let { reminder ->
+                        _state.value = AddEditState(
+                            id = reminder.id,
+                            title = reminder.title,
+                            description = reminder.description,
+                            reminderDate = reminder.reminderDate,
+                            reminderTime = reminder.reminderTime,
+                            priority = reminder.priority,
+                            category = reminder.category,
+                            repeatType = reminder.repeatType,
+                            isCompleted = reminder.isCompleted,
+                            notificationId = reminder.notificationId
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     fun updateTitle(title: String) {
         _state.update { it.copy(title = title) }
     }

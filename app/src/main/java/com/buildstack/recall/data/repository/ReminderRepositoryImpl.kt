@@ -27,6 +27,10 @@ class ReminderRepositoryImpl(
         return dao.getAllReminders().map { list -> list.map { it.toDomain() } }
     }
 
+    override suspend fun getReminderById(id: Int): Reminder? {
+        return dao.getReminderById(id)?.toDomain()
+    }
+
     override fun getCompletedReminders(): Flow<List<Reminder>> {
         return dao.getCompletedReminders().map { list -> list.map { it.toDomain() } }
     }

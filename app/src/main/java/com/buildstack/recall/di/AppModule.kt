@@ -42,6 +42,7 @@ object AppModule {
     fun provideReminderUseCases(repository: ReminderRepository): ReminderUseCases {
         return ReminderUseCases(
             getReminders = GetReminders(repository),
+            getReminderById = com.buildstack.recall.domain.usecase.GetReminderById(repository),
             addReminder = AddReminder(repository),
             updateReminder = UpdateReminder(repository),
             deleteReminder = DeleteReminder(repository),
@@ -53,5 +54,11 @@ object AppModule {
     @Singleton
     fun provideAlarmScheduler(app: Application): com.buildstack.recall.domain.scheduler.AlarmScheduler {
         return com.buildstack.recall.data.scheduler.AlarmSchedulerImpl(app)
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferencesManager(app: Application): com.buildstack.recall.data.local.datastore.PreferencesManager {
+        return com.buildstack.recall.data.local.datastore.PreferencesManager(app)
     }
 }
