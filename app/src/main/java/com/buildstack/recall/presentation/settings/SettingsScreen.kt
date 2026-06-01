@@ -147,6 +147,40 @@ fun SettingsScreen(
                             containerColor = Color(0xFF1E1E1E)
                         )
                     }
+
+                    androidx.compose.material3.HorizontalDivider(color = White.copy(alpha = 0.2f))
+
+                    val snoozeDuration by viewModel.snoozeDuration.collectAsStateWithLifecycle()
+                    var snoozeDropdownExpanded by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+                    val snoozeOptions = listOf(1, 5, 10, 15)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { snoozeDropdownExpanded = true },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(text = "Snooze Duration", color = White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text(text = "Time to delay the alarm", color = White.copy(alpha = 0.7f), fontSize = 14.sp)
+                        }
+                        Box {
+                            Text(text = "$snoozeDuration min", color = ButtonGlow, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            androidx.compose.material3.DropdownMenu(
+                                expanded = snoozeDropdownExpanded,
+                                onDismissRequest = { snoozeDropdownExpanded = false }
+                            ) {
+                                snoozeOptions.forEach { option ->
+                                    androidx.compose.material3.DropdownMenuItem(
+                                        text = { Text("$option minutes") },
+                                        onClick = {
+                                            viewModel.updateSnoozeDuration(option)
+                                            snoozeDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

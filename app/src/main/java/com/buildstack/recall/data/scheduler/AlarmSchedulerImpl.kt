@@ -64,7 +64,7 @@ class AlarmSchedulerImpl(
     private fun calculateTimeInMillis(dateStr: String, timeStr: String): Long {
         return try {
             val formatterDate = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-            val formatterTime = DateTimeFormatter.ofPattern("HH:mm")
+            val formatterTime = DateTimeFormatter.ofPattern("HH:mm:ss")
             val date = LocalDate.parse(dateStr, formatterDate)
             val time = LocalTime.parse(timeStr, formatterTime)
             val dateTime = LocalDateTime.of(date, time)

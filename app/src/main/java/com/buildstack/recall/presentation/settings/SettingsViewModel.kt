@@ -62,6 +62,19 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    val snoozeDuration: StateFlow<Int> = preferencesManager.snoozeDuration
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 5
+        )
+
+    fun updateSnoozeDuration(minutes: Int) {
+        viewModelScope.launch {
+            preferencesManager.setSnoozeDuration(minutes)
+        }
+    }
+
     fun updateDailySummaryTime(time: String) {
         viewModelScope.launch {
             preferencesManager.setDailySummaryTime(time)

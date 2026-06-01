@@ -22,7 +22,7 @@ data class AddEditState(
     val title: String = "",
     val description: String = "",
     val reminderDate: String = "",
-    val reminderTime: String = "",
+    val reminderTime: String = "08:00:00",
     val priority: PriorityLevel = PriorityLevel.LOW,
     val category: String = "Personal",
     val repeatType: RepeatType = RepeatType.NONE,

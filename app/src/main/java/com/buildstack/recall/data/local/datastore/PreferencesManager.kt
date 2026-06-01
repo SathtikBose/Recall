@@ -17,6 +17,7 @@ class PreferencesManager(private val context: Context) {
         val IS_24_HOUR_FORMAT = booleanPreferencesKey("is_24_hour_format")
         val IS_DAILY_SUMMARY_ENABLED = booleanPreferencesKey("is_daily_summary_enabled")
         val DAILY_SUMMARY_TIME = androidx.datastore.preferences.core.stringPreferencesKey("daily_summary_time")
+        val SNOOZE_DURATION = androidx.datastore.preferences.core.intPreferencesKey("snooze_duration")
     }
 
     val is24HourFormat: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -46,6 +47,16 @@ class PreferencesManager(private val context: Context) {
     suspend fun setDailySummaryTime(time: String) {
         context.dataStore.edit { preferences ->
             preferences[DAILY_SUMMARY_TIME] = time
+        }
+    }
+
+    val snoozeDuration: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[SNOOZE_DURATION] ?: 5
+    }
+
+    suspend fun setSnoozeDuration(minutes: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[SNOOZE_DURATION] = minutes
         }
     }
 }

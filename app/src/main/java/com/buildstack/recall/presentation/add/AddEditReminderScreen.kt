@@ -102,10 +102,12 @@ fun AddEditReminderScreen(
                     )
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        // We keep the OutlinedTextField but make them readOnly and clickable
-                        var showTimePicker by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
-                        val is24HourFormat by viewModel.is24HourFormat.collectAsStateWithLifecycle()
-
+                        val timeParts = state.reminderTime.split(":").toMutableList()
+                        if (timeParts.size < 3) {
+                            // Ensure there are at least 3 parts: HH:MM:SS
+                            while(timeParts.size < 3) timeParts.add("00")
+                        }
+                        
                         OutlinedTextField(
                             value = state.reminderDate,
                             onValueChange = viewModel::updateDate,
@@ -115,46 +117,38 @@ fun AddEditReminderScreen(
                                 focusedTextColor = White, unfocusedTextColor = White
                             )
                         )
-                        OutlinedTextField(
-                            value = state.reminderTime,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Time (HH:MM)") },
-                            modifier = Modifier.weight(1f),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = White, unfocusedTextColor = White,
-                                disabledTextColor = White
-                            ),
-                            trailingIcon = {
-                                IconButton(onClick = { showTimePicker = true }) {
-                                    Text("🕒", color = White)
-                                }
-                            }
-                        )
-
-                        if (showTimePicker) {
-                            val timeState = androidx.compose.material3.rememberTimePickerState(
-                                is24Hour = is24HourFormat
-                            )
-                            androidx.compose.material3.AlertDialog(
-                                onDismissRequest = { showTimePicker = false },
-                                confirmButton = {
-                                    androidx.compose.material3.TextButton(onClick = {
-                                        val h = timeState.hour
-                                        val m = timeState.minute
-                                        viewModel.updateTime(String.format("%02d:%02d", h, m))
-                                        showTimePicker = false
-                                    }) { Text("OK", color = ButtonGlow) }
-                                },
-                                dismissButton = {
-                                    androidx.compose.material3.TextButton(onClick = { showTimePicker = false }) { Text("Cancel", color = White) }
-                                },
-                                text = {
-                                    androidx.compose.material3.TimePicker(state = timeState)
-                                },
-                                containerColor = Color(0xFF1E1E1E)
-                            )
+                    }
+                    
+                    Text("Time (HH:MM:SS)", color = White, fontWeight = FontWeight.Bold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        val timeParts = state.reminderTime.split(":").let { 
+                            if (it.size == 3) it else listOf(it.getOrNull(0) ?: "08", it.getOrNull(1) ?: "00", "00")
                         }
+                        
+                        OutlinedTextField(
+                            value = timeParts[0],
+                            onValueChange = { h -> viewModel.updateTime("${h.take(2)}:${timeParts[1]}:${timeParts[2]}") },
+                            label = { Text("HH") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = White)
+                        )
+                        OutlinedTextField(
+                            value = timeParts[1],
+                            onValueChange = { m -> viewModel.updateTime("${timeParts[0]}:${m.take(2)}:${timeParts[2]}") },
+                            label = { Text("MM") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = White)
+                        )
+                        OutlinedTextField(
+                            value = timeParts[2],
+                            onValueChange = { s -> viewModel.updateTime("${timeParts[0]}:${timeParts[1]}:${s.take(2)}") },
+                            label = { Text("SS") },
+                            modifier = Modifier.weight(1f),
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = White)
+                        )
                     }
 
                     // Category Selection

@@ -90,7 +90,7 @@ class ReminderUseCasesTest {
             title = "Test Reminder",
             description = "Description",
             reminderDate = "2026-05-31",
-            reminderTime = "12:00",
+            reminderTime = "12:00:00",
             priority = PriorityLevel.MEDIUM,
             category = "Work",
             repeatType = RepeatType.NONE,

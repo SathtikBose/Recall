@@ -12,30 +12,20 @@ import com.buildstack.recall.R
 class NotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val title = intent.getStringExtra("EXTRA_TITLE") ?: "Recall Reminder"
-        val desc = intent.getStringExtra("EXTRA_DESC") ?: "It's time!"
+        val title = intent.getStringExtra("EXTRA_TITLE")
+        val desc = intent.getStringExtra("EXTRA_DESC")
         val notificationId = intent.getIntExtra("EXTRA_ID", 1)
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "RECALL_CHANNEL_ID",
-                "Recall Reminders",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            channel.description = "Channel for Recall Reminders"
-            notificationManager.createNotificationChannel(channel)
+        val serviceIntent = Intent(context, AlarmService::class.java).apply {
+            putExtra("EXTRA_TITLE", title)
+            putExtra("EXTRA_DESC", desc)
+            putExtra("EXTRA_ID", notificationId)
         }
-
-        val notification = NotificationCompat.Builder(context, "RECALL_CHANNEL_ID")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(title)
-            .setContentText(desc)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(notificationId, notification)
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
     }
 }
